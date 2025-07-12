@@ -32,16 +32,26 @@ export function generateAuthUrl(codeChallenge: string): string {
       "https://www.googleapis.com/auth/cloud-platform.read-only https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email",
     code_challenge: codeChallenge,
     code_challenge_method: "S256",
+    access_type: "offline",
+    prompt: "consent",
   });
 
   return `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`;
+}
+
+// トークン情報の型定義
+export interface TokenResponse {
+  access_token: string;
+  refresh_token?: string;
+  expires_in: number;
+  token_type: string;
 }
 
 // アクセストークンを取得（プロキシ経由）
 export async function getAccessToken(
   code: string,
   codeVerifier: string
-): Promise<string> {
+): Promise<TokenResponse> {
   const requestBody = new URLSearchParams({
     client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID || "",
     client_secret: import.meta.env.VITE_GOOGLE_CLIENT_SECRET || "",
@@ -73,7 +83,39 @@ export async function getAccessToken(
   }
 
   const data = await response.json();
-  return data.access_token;
+  return data;
+}
+
+// リフレッシュトークンを使って新しいアクセストークンを取得
+export async function refreshAccessToken(
+  refreshToken: string
+): Promise<TokenResponse> {
+  const requestBody = new URLSearchParams({
+    client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID || "",
+    client_secret: import.meta.env.VITE_GOOGLE_CLIENT_SECRET || "",
+    grant_type: "refresh_token",
+    refresh_token: refreshToken,
+  });
+
+  console.log("Refreshing access token...");
+
+  const response = await fetch("/oauth2/token", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    body: requestBody,
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error("Token refresh failed:", response.status, errorText);
+    throw new Error(`Failed to refresh access token: ${response.status}`);
+  }
+
+  const data = await response.json();
+  console.log("Token refreshed successfully");
+  return data;
 }
 
 // ユーザー情報を取得
