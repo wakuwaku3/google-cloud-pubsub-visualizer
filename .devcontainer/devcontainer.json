@@ -1,0 +1,31 @@
+{
+  "name": "code space",
+  "dockerComposeFile": ["docker-compose.yml"],
+  "service": "app",
+  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+  "forwardPorts": [3000],
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {}
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-azuretools.vscode-docker",
+        "p1c2u.docker-compose",
+        "esbenp.prettier-vscode",
+        "wmaurer.change-case",
+        "streetsidesoftware.code-spell-checker",
+        "GitHub.copilot",
+        "GitHub.copilot-chat",
+        "GitHub.vscode-pull-request-github",
+        "github.vscode-github-actions",
+        "DavidAnson.vscode-markdownlint",
+        "EditorConfig.EditorConfig",
+        "redhat.vscode-yaml",
+        "Gruntfuggly.todo-tree",
+        "antfu.vite"
+      ]
+    }
+  },
+  "overrideCommand": false
+}
