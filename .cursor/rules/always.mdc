@@ -45,6 +45,9 @@ alwaysApply: true
 - GCP 側で「Cloud Resource Manager API」および「Pub/Sub API」を有効化しておく必要がある
 - セキュリティ上、アクセストークンの保存は `sessionStorage` を基本とし、永続化しない方針
 - gapi の初期化は認証後に必要（`gapi.load('client')` → `gapi.client.init()`）
+- devcontainer での開発なので、 ローカルで開発を行うにあったって公開可能な環境変数は .devcontainer/.env に格納すること
+  - 公開不可能な情報は、 .devcontainer/.env.local に保存する。このファイルは gitignore されているので、 .env.local.template に環境変数のリストを追加すること
+- Tailwind 等の css ライブラリは AI が対応できないため使わないこと
 
 ---
 
@@ -54,4 +57,3 @@ alwaysApply: true
 - サブスクリプションの詳細（AckDeadline, Push/ Pull, DeadLetter 等）の表示
 - グラフ構造へのドラッグ操作やレイアウト調整
 - Pub/Sub メッセージの送受信機能（テスト用）
-

@@ -22,8 +22,7 @@
         "DavidAnson.vscode-markdownlint",
         "EditorConfig.EditorConfig",
         "redhat.vscode-yaml",
-        "Gruntfuggly.todo-tree",
-        "antfu.vite"
+        "Gruntfuggly.todo-tree"
       ]
     }
   },
