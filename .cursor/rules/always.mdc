@@ -1,0 +1,57 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# google-cloud-pubsub-visualizer - 構成概要
+
+このアプリケーションは、Google Cloud 上の Pub/Sub コンポーネント（topics / subscriptions）を視覚的にわかりやすく表示する Web アプリケーションです。
+
+## 技術スタック
+
+- フロントエンド: React + TypeScript
+- バンドラー: Vite + SWC
+- UI ライブラリ: shadcn/ui
+- 認証: Google OAuth2 (PKCE フロー)
+- API 呼び出し: Google API Client Library (`gapi`)
+- 実行環境: Dev Container (VS Code 用)
+
+---
+
+## 主な機能
+
+### 1. Google アカウントでのログイン
+
+- Google Cloud の OAuth2 認証を使用（Firebase Authentication は使用しない）
+- クライアント側のみで完結する PKCE フローを採用
+- ユーザーがログインするとアクセストークンを取得し、Google Cloud API にアクセス可能になる
+
+### 2. プロジェクト選択
+
+- ログイン後、`cloudresourcemanager.projects.list` API を使用してユーザーがアクセス可能な GCP プロジェクトの一覧を取得
+- UI 上でセレクトボックスに表示し、プロジェクトを1つ選択できるようにする
+
+### 3. Pub/Sub コンポーネントの取得と表示（後続機能）
+
+- 選択されたプロジェクトに対して `pubsub.projects.topics.list` と `pubsub.projects.subscriptions.list` を呼び出し、Pub/Sub の構成を取得
+- トピックとサブスクリプションの関係を可視化（例: グラフビュー）
+- データはリアクティブに更新可能にする（ポーリングまたは手動更新）
+
+---
+
+## 注意点・要件
+
+- 使用スコープは必要最小限に制限（例: `https://www.googleapis.com/auth/cloud-platform.read-only`）
+- GCP 側で「Cloud Resource Manager API」および「Pub/Sub API」を有効化しておく必要がある
+- セキュリティ上、アクセストークンの保存は `sessionStorage` を基本とし、永続化しない方針
+- gapi の初期化は認証後に必要（`gapi.load('client')` → `gapi.client.init()`）
+
+---
+
+## 今後の拡張案
+
+- Pub/Sub リソースの検索・フィルタ
+- サブスクリプションの詳細（AckDeadline, Push/ Pull, DeadLetter 等）の表示
+- グラフ構造へのドラッグ操作やレイアウト調整
+- Pub/Sub メッセージの送受信機能（テスト用）
+
