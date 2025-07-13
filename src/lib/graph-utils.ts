@@ -396,8 +396,8 @@ export function buildPubSubGraph(
 // グラフのレイアウトを自動調整
 export function autoLayoutGraph(graphData: GraphData): GraphData {
   const { nodes, edges } = graphData;
-  const nodeSpacing = { x: 300, y: 300 }; // ノード間の間隔
-  const columnSpacing = 400; // 列間の間隔
+  const nodeSpacing = { x: 600, y: 300 }; // ノード間の間隔（横幅を広げる）
+  const columnSpacing = 700; // 列間の間隔（横幅を広げる）
 
   // ノードの接続関係を構築
   const nodeConnections = new Map<string, Set<string>>();
@@ -478,7 +478,7 @@ export function autoLayoutGraph(graphData: GraphData): GraphData {
   );
 
   // 各グループ内でノードを配置
-  let currentGroupX = 0;
+  let currentGroupY = 0;
   groups.forEach((group) => {
     const groupNodes = group
       .map((id) => nodes.find((n) => n.id === id))
@@ -490,11 +490,11 @@ export function autoLayoutGraph(graphData: GraphData): GraphData {
       (node) => node.type === "endpoint"
     );
 
-    // 列のX座標を定義
+    // 列のX座標を定義（グループ内では従来通り列で配置）
     const columnX = {
-      topics: currentGroupX,
-      subscriptions: currentGroupX + columnSpacing,
-      endpoints: currentGroupX + columnSpacing * 2,
+      topics: 0,
+      subscriptions: columnSpacing,
+      endpoints: columnSpacing * 2,
     };
 
     // 配置済みノードを追跡
@@ -526,25 +526,47 @@ export function autoLayoutGraph(graphData: GraphData): GraphData {
       return aCount - bCount;
     });
 
+    // トピックに紐づくサブスクリプションの数を計算する関数
+    function getSubscriptionCountForTopic(topicId: string): number {
+      return edges.filter(
+        (edge) =>
+          edge.source === topicId &&
+          edge.data?.type === "subscription" &&
+          groupNodes.some(
+            (node) => node.id === edge.target && node.type === "subscription"
+          )
+      ).length;
+    }
+
     // エッジを辿ってノードを配置する関数
     function placeNodeInColumn(
-      columnType: "topics" | "subscriptions" | "endpoints"
+      columnType: "topics" | "subscriptions" | "endpoints",
+      topicId?: string
     ): { x: number; y: number } {
       const currentHeight = columnHeights.get(columnType) ?? 0;
       const position = {
         x: columnX[columnType],
-        y: currentHeight,
+        y: currentGroupY + currentHeight,
       };
 
       // 列の高さを更新
-      columnHeights.set(columnType, currentHeight + nodeSpacing.y);
+      if (columnType === "topics" && topicId) {
+        // トピックの場合は、そのトピックに紐づくサブスクリプションの数に基づいて高さを調整
+        const subscriptionCount = getSubscriptionCountForTopic(topicId);
+        const requiredHeight = Math.max(1, subscriptionCount) * nodeSpacing.y;
+        columnHeights.set(columnType, currentHeight + requiredHeight);
+      } else {
+        // サブスクリプションとエンドポイントは通常通り
+        columnHeights.set(columnType, currentHeight + nodeSpacing.y);
+      }
+
       return position;
     }
 
     // 最初のトピックから配置開始
     if (sortedTopics.length > 0) {
       const firstTopic = sortedTopics[0];
-      const position = placeNodeInColumn("topics");
+      const position = placeNodeInColumn("topics", firstTopic.id);
       nodePositions.set(firstTopic.id, position);
       placedNodes.add(firstTopic.id);
     }
@@ -610,7 +632,10 @@ export function autoLayoutGraph(graphData: GraphData): GraphData {
         });
 
         if (columnType) {
-          const position = placeNodeInColumn(columnType);
+          const position = placeNodeInColumn(
+            columnType,
+            node.type === "topic" ? node.id : undefined
+          );
           nodePositions.set(node.id, position);
           placedNodes.add(node.id);
           placedInThisIteration++;
@@ -630,7 +655,10 @@ export function autoLayoutGraph(graphData: GraphData): GraphData {
               // node.type === "endpoint"
               columnType = "endpoints";
             }
-            const position = placeNodeInColumn(columnType);
+            const position = placeNodeInColumn(
+              columnType,
+              node.type === "topic" ? node.id : undefined
+            );
             nodePositions.set(node.id, position);
             placedNodes.add(node.id);
           }
@@ -649,8 +677,15 @@ export function autoLayoutGraph(graphData: GraphData): GraphData {
       }
     });
 
-    // 次のグループのためにX座標を調整
-    currentGroupX += columnSpacing * 3 + 200; // 3列分 + 余白
+    // グループの実際の高さを計算
+    const groupHeight = Math.max(
+      columnHeights.get("topics") ?? 0,
+      columnHeights.get("subscriptions") ?? 0,
+      columnHeights.get("endpoints") ?? 0
+    );
+
+    // 次のグループのためにY座標を調整（実際の高さ + 余白）
+    currentGroupY += groupHeight + 100; // 実際の高さ + 余白
   });
 
   console.log("Auto layout completed");
