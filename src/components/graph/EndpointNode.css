@@ -1,0 +1,95 @@
+.endpoint-node {
+  background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+  border-radius: 12px;
+  padding: 16px;
+  min-width: 180px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border: 2px solid #ff6b6b;
+  color: white;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.endpoint-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.endpoint-icon {
+  font-size: 24px;
+  margin-bottom: 4px;
+}
+
+.endpoint-label {
+  font-weight: 600;
+  font-size: 14px;
+  text-align: center;
+  word-break: break-word;
+  line-height: 1.2;
+}
+
+.endpoint-url {
+  font-size: 10px;
+  opacity: 0.8;
+  text-align: center;
+  word-break: break-all;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.endpoint-event-ids {
+  margin-top: 6px;
+  padding: 6px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.event-ids-title {
+  font-size: 10px;
+  font-weight: 600;
+  margin-bottom: 3px;
+  text-align: center;
+  opacity: 0.9;
+}
+
+.event-id {
+  font-size: 9px;
+  margin: 1px 0;
+  text-align: center;
+  opacity: 0.8;
+  word-break: break-word;
+}
+
+.endpoint-publishing-topics {
+  margin-top: 8px;
+  padding: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.publishing-title {
+  font-size: 10px;
+  font-weight: 600;
+  margin-bottom: 4px;
+  text-align: center;
+  opacity: 0.9;
+}
+
+.publishing-topic {
+  font-size: 9px;
+  margin: 2px 0;
+  text-align: center;
+  opacity: 0.8;
+  word-break: break-word;
+}
+
+.endpoint-node:hover {
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+  transform: translateY(-2px);
+  transition: all 0.2s ease;
+}

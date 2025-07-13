@@ -8,15 +8,16 @@ import {
 import { Loading } from "@/components/loading";
 import { TopicListView } from "./TopicListView";
 import { TopicCardView } from "./TopicCardView";
+import { TopicGraphView } from "./TopicGraphView";
 import type { Topic, Subscription } from "@/types";
 import "./TopicList.css";
 
-type ViewMode = "list" | "card";
+type ViewMode = "graph" | "list" | "card";
 
 const VIEW_MODE_STORAGE_KEY = "topic-list-view-mode";
 
 export function TopicList() {
-  const { selectedProject, accessToken } = useAuth();
+  const { selectedProject, accessToken, refreshAccessToken } = useAuth();
   const [topicsWithSubscriptions, setTopicsWithSubscriptions] = useState<
     {
       topic: Topic;
@@ -26,10 +27,14 @@ export function TopicList() {
   const [filterText, setFilterText] = useState("");
   const [viewMode, setViewMode] = useState<ViewMode>(() => {
     const savedViewMode = localStorage.getItem(VIEW_MODE_STORAGE_KEY);
-    if (savedViewMode === "list" || savedViewMode === "card") {
+    if (
+      savedViewMode === "graph" ||
+      savedViewMode === "list" ||
+      savedViewMode === "card"
+    ) {
       return savedViewMode;
     }
-    return "list";
+    return "graph";
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -51,8 +56,12 @@ export function TopicList() {
       try {
         // TopicとSubscriptionを並行して取得
         const [topics, subscriptions] = await Promise.all([
-          getTopics(accessToken, selectedProject.projectId),
-          getSubscriptions(accessToken, selectedProject.projectId),
+          getTopics(accessToken, selectedProject.projectId, refreshAccessToken),
+          getSubscriptions(
+            accessToken,
+            selectedProject.projectId,
+            refreshAccessToken
+          ),
         ]);
 
         // TopicとSubscriptionを関連付ける
@@ -78,7 +87,7 @@ export function TopicList() {
     };
 
     void fetchTopicsAndSubscriptions();
-  }, [selectedProject, accessToken]);
+  }, [selectedProject, accessToken, refreshAccessToken]);
 
   if (!selectedProject) {
     return (
@@ -159,8 +168,45 @@ export function TopicList() {
   return (
     <div className="topic-list-container">
       <div className="topic-list-header">
-        <h2>Topic一覧</h2>
+        <div className="filter-container">
+          <div className="filter-input-wrapper">
+            <span className="filter-icon">🔍</span>
+            <input
+              type="text"
+              placeholder="Topic名、サブスクリプション名、ラベルでフィルタリング..."
+              value={filterText}
+              onChange={(e) => {
+                setFilterText(e.target.value);
+              }}
+              className="filter-input"
+            />
+            {filterText && (
+              <button
+                type="button"
+                onClick={() => {
+                  setFilterText("");
+                }}
+                className="clear-filter-button"
+                aria-label="フィルターをクリア"
+              >
+                ✕
+              </button>
+            )}
+          </div>
+        </div>
         <div className="view-mode-toggle">
+          <button
+            type="button"
+            className={`view-mode-button ${
+              viewMode === "graph" ? "active" : ""
+            }`}
+            onClick={() => {
+              setViewMode("graph");
+            }}
+            aria-label="グラフ表示"
+          >
+            🕸️ グラフ
+          </button>
           <button
             type="button"
             className={`view-mode-button ${
@@ -188,33 +234,6 @@ export function TopicList() {
         </div>
       </div>
 
-      <div className="filter-container">
-        <div className="filter-input-wrapper">
-          <span className="filter-icon">🔍</span>
-          <input
-            type="text"
-            placeholder="Topic名、サブスクリプション名、ラベルでフィルタリング..."
-            value={filterText}
-            onChange={(e) => {
-              setFilterText(e.target.value);
-            }}
-            className="filter-input"
-          />
-          {filterText && (
-            <button
-              type="button"
-              onClick={() => {
-                setFilterText("");
-              }}
-              className="clear-filter-button"
-              aria-label="フィルターをクリア"
-            >
-              ✕
-            </button>
-          )}
-        </div>
-      </div>
-
       {filteredTopics.length === 0 && filterText && (
         <div className="no-results">
           <p>「{filterText}」に一致するTopicが見つかりません。</p>
@@ -222,7 +241,9 @@ export function TopicList() {
       )}
 
       <div className="topics-container">
-        {viewMode === "list" ? (
+        {viewMode === "graph" ? (
+          <TopicGraphView topicsWithSubscriptions={filteredTopics} />
+        ) : viewMode === "list" ? (
           <TopicListView topicsWithSubscriptions={filteredTopics} />
         ) : (
           <TopicCardView topicsWithSubscriptions={filteredTopics} />

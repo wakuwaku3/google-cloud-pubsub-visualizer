@@ -1,0 +1,99 @@
+.subscription-node {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  border-radius: 12px;
+  padding: 16px;
+  min-width: 150px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border: 2px solid #e91e63;
+  color: white;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.subscription-node.event-publisher {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  border: 2px solid #2196f3;
+}
+
+.subscription-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 200px;
+}
+
+.subscription-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.subscription-icon {
+  font-size: 24px;
+}
+
+.subscription-label {
+  font-weight: 600;
+  font-size: 14px;
+  text-align: center;
+  word-break: break-word;
+  line-height: 1.2;
+}
+
+.subscription-state {
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 8px;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.subscription-state-active {
+  background: #4caf50;
+  color: white;
+}
+
+.subscription-details {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 10px;
+  text-align: center;
+}
+
+.delivery-type {
+  font-weight: 500;
+}
+
+.ack-deadline {
+  font-weight: 500;
+}
+
+.event-id {
+  font-size: 10px;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 2px 6px;
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+.subscription-labels {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  justify-content: center;
+}
+
+.subscription-labels .label {
+  font-size: 9px;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 1px 4px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+.subscription-node:hover {
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+  transform: translateY(-2px);
+  transition: all 0.2s ease;
+}

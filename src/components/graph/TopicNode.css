@@ -1,0 +1,78 @@
+.topic-node {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 12px;
+  padding: 16px;
+  min-width: 150px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border: 2px solid #4c63d2;
+  color: white;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.topic-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 180px;
+}
+
+.topic-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.topic-icon {
+  font-size: 24px;
+}
+
+.topic-label {
+  font-weight: 600;
+  font-size: 14px;
+  text-align: center;
+  word-break: break-word;
+  line-height: 1.2;
+}
+
+.topic-state {
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 8px;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.topic-state-active {
+  background: #4caf50;
+  color: white;
+}
+
+.topic-labels {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  justify-content: center;
+}
+
+.topic-labels .label {
+  font-size: 9px;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 1px 4px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+.label-more {
+  font-size: 9px;
+  background: rgba(255, 255, 255, 0.3);
+  padding: 1px 4px;
+  border-radius: 4px;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.topic-node:hover {
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+  transform: translateY(-2px);
+  transition: all 0.2s ease;
+}

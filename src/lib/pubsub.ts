@@ -5,21 +5,43 @@ import type {
   SubscriptionsResponse,
 } from "@/types";
 
+// トークンリフレッシュ関数の型定義
+type RefreshTokenFunction = () => Promise<boolean>;
+
 // Topic一覧を取得
 export async function getTopics(
   accessToken: string,
-  projectId: string
+  projectId: string,
+  refreshTokenFn?: RefreshTokenFunction
 ): Promise<Topic[]> {
   console.log("Fetching topics for project:", projectId);
 
-  const response = await fetch(
-    `https://pubsub.googleapis.com/v1/projects/${projectId}/topics`,
-    {
-      headers: {
-        Authorization: `Bearer ${String(accessToken)}`,
-      },
+  const makeRequest = async (token: string): Promise<Response> => {
+    return fetch(
+      `https://pubsub.googleapis.com/v1/projects/${projectId}/topics`,
+      {
+        headers: {
+          Authorization: `Bearer ${String(token)}`,
+        },
+      }
+    );
+  };
+
+  let response = await makeRequest(accessToken);
+
+  // 401エラーの場合、トークンリフレッシュを試行
+  if (response.status === 401 && refreshTokenFn) {
+    console.log("Token expired, attempting to refresh...");
+    const refreshSuccess = await refreshTokenFn();
+    if (refreshSuccess) {
+      // リフレッシュ成功後、新しいトークンで再試行
+      const newToken = sessionStorage.getItem("access_token");
+      if (newToken) {
+        console.log("Retrying with refreshed token...");
+        response = await makeRequest(newToken);
+      }
     }
-  );
+  }
 
   if (!response.ok) {
     const errorText = await response.text();
@@ -44,18 +66,37 @@ export async function getTopics(
 // Subscription一覧を取得
 export async function getSubscriptions(
   accessToken: string,
-  projectId: string
+  projectId: string,
+  refreshTokenFn?: RefreshTokenFunction
 ): Promise<Subscription[]> {
   console.log("Fetching subscriptions for project:", projectId);
 
-  const response = await fetch(
-    `https://pubsub.googleapis.com/v1/projects/${projectId}/subscriptions`,
-    {
-      headers: {
-        Authorization: `Bearer ${String(accessToken)}`,
-      },
+  const makeRequest = async (token: string): Promise<Response> => {
+    return fetch(
+      `https://pubsub.googleapis.com/v1/projects/${projectId}/subscriptions`,
+      {
+        headers: {
+          Authorization: `Bearer ${String(token)}`,
+        },
+      }
+    );
+  };
+
+  let response = await makeRequest(accessToken);
+
+  // 401エラーの場合、トークンリフレッシュを試行
+  if (response.status === 401 && refreshTokenFn) {
+    console.log("Token expired, attempting to refresh...");
+    const refreshSuccess = await refreshTokenFn();
+    if (refreshSuccess) {
+      // リフレッシュ成功後、新しいトークンで再試行
+      const newToken = sessionStorage.getItem("access_token");
+      if (newToken) {
+        console.log("Retrying with refreshed token...");
+        response = await makeRequest(newToken);
+      }
     }
-  );
+  }
 
   if (!response.ok) {
     const errorText = await response.text();
