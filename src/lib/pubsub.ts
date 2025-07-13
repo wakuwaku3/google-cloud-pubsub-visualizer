@@ -14,39 +14,30 @@ export async function getTopics(
   projectId: string,
   refreshTokenFn?: RefreshTokenFunction
 ): Promise<Topic[]> {
-  console.log("Fetching topics for project:", projectId);
-
   const makeRequest = async (token: string): Promise<Response> => {
-    return fetch(
-      `https://pubsub.googleapis.com/v1/projects/${projectId}/topics`,
-      {
-        headers: {
-          Authorization: `Bearer ${String(token)}`,
-        },
-      }
-    );
+    const url = `https://pubsub.googleapis.com/v1/projects/${projectId}/topics`;
+    return fetch(url, {
+      headers: {
+        Authorization: `Bearer ${String(token)}`,
+      },
+    });
   };
 
   let response = await makeRequest(accessToken);
 
   // 401エラーの場合、トークンリフレッシュを試行
   if (response.status === 401 && refreshTokenFn) {
-    console.log("Token expired, attempting to refresh...");
     const refreshSuccess = await refreshTokenFn();
     if (refreshSuccess) {
       // リフレッシュ成功後、新しいトークンで再試行
       const newToken = sessionStorage.getItem("access_token");
       if (newToken) {
-        console.log("Retrying with refreshed token...");
         response = await makeRequest(newToken);
       }
     }
   }
 
   if (!response.ok) {
-    const errorText = await response.text();
-    console.error("Topics request failed:", String(response.status), errorText);
-
     if (response.status === 403) {
       throw new Error(
         "Access denied. Please check if Pub/Sub API is enabled and you have proper permissions."
@@ -56,11 +47,13 @@ export async function getTopics(
     throw new Error(`Failed to get topics: ${String(response.status)}`);
   }
 
+  // デバッグ用ログ削除済み
   const data: unknown = await response.json();
-  if (!data || typeof data !== "object" || !("topics" in data)) {
-    throw new Error("Invalid topics response");
+  if (!data || typeof data !== "object") {
+    throw new Error("Invalid topics response: not an object");
   }
-  return (data as TopicsResponse).topics;
+  const topics = "topics" in data ? (data as TopicsResponse).topics : [];
+  return topics;
 }
 
 // Subscription一覧を取得
@@ -69,43 +62,30 @@ export async function getSubscriptions(
   projectId: string,
   refreshTokenFn?: RefreshTokenFunction
 ): Promise<Subscription[]> {
-  console.log("Fetching subscriptions for project:", projectId);
-
   const makeRequest = async (token: string): Promise<Response> => {
-    return fetch(
-      `https://pubsub.googleapis.com/v1/projects/${projectId}/subscriptions`,
-      {
-        headers: {
-          Authorization: `Bearer ${String(token)}`,
-        },
-      }
-    );
+    const url = `https://pubsub.googleapis.com/v1/projects/${projectId}/subscriptions`;
+    return fetch(url, {
+      headers: {
+        Authorization: `Bearer ${String(token)}`,
+      },
+    });
   };
 
   let response = await makeRequest(accessToken);
 
   // 401エラーの場合、トークンリフレッシュを試行
   if (response.status === 401 && refreshTokenFn) {
-    console.log("Token expired, attempting to refresh...");
     const refreshSuccess = await refreshTokenFn();
     if (refreshSuccess) {
       // リフレッシュ成功後、新しいトークンで再試行
       const newToken = sessionStorage.getItem("access_token");
       if (newToken) {
-        console.log("Retrying with refreshed token...");
         response = await makeRequest(newToken);
       }
     }
   }
 
   if (!response.ok) {
-    const errorText = await response.text();
-    console.error(
-      "Subscriptions request failed:",
-      String(response.status),
-      errorText
-    );
-
     if (response.status === 403) {
       throw new Error(
         "Access denied. Please check if Pub/Sub API is enabled and you have proper permissions."
@@ -116,10 +96,14 @@ export async function getSubscriptions(
   }
 
   const data: unknown = await response.json();
-  if (!data || typeof data !== "object" || !("subscriptions" in data)) {
-    throw new Error("Invalid subscriptions response");
+  if (!data || typeof data !== "object") {
+    throw new Error("Invalid subscriptions response: not an object");
   }
-  return (data as SubscriptionsResponse).subscriptions;
+  const subscriptions =
+    "subscriptions" in data
+      ? (data as SubscriptionsResponse).subscriptions
+      : [];
+  return subscriptions;
 }
 
 // Topic名からプロジェクトIDとトピック名を抽出
