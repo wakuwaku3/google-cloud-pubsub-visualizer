@@ -1,0 +1,46 @@
+.logo-container {
+  display: inline-block;
+  position: relative;
+  transition: transform 0.3s ease;
+}
+
+.logo-container:hover {
+  transform: scale(1.05);
+}
+
+.logo-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* アニメーションが有効な場合の追加効果 */
+.logo-container.animated .logo-svg {
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
+}
+
+.logo-container.animated:hover .logo-svg {
+  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.2));
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+  .logo-container {
+    transform: scale(0.8);
+  }
+
+  .logo-container:hover {
+    transform: scale(0.85);
+  }
+}
+
+/* ダークモード対応 */
+@media (prefers-color-scheme: dark) {
+  .logo-container.animated .logo-svg {
+    filter: drop-shadow(0 4px 8px rgba(255, 255, 255, 0.1));
+  }
+
+  .logo-container.animated:hover .logo-svg {
+    filter: drop-shadow(0 8px 16px rgba(255, 255, 255, 0.2));
+  }
+}

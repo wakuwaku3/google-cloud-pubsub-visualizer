@@ -195,3 +195,14 @@ import { GoogleIcon } from "@/components/GoogleIcon";
 - サブスクリプションの詳細（AckDeadline, Push/ Pull, DeadLetter 等）の表示
 - グラフ構造へのドラッグ操作やレイアウト調整
 - Pub/Sub メッセージの送受信機能（テスト用）
+
+---
+
+## 追加ルール
+
+- コードを変更した場合 lint を実行し警告やエラーがある場合は解消を試みること
+- --fix フラグで修正可能なものは `npm run fix` で修正すること
+
+description:
+globs:
+alwaysApply: false

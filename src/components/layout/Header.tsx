@@ -1,6 +1,7 @@
 import { useAuth } from "@/contexts/useAuth";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/button/Button";
+import { Logo } from "@/components/icon";
 import "./Header.css";
 
 export function Header() {
@@ -23,7 +24,10 @@ export function Header() {
   return (
     <header className="header">
       <div className="header-left">
-        <h1 className="app-title">Pub/Sub Visualizer</h1>
+        <div className="app-brand">
+          <Logo size={40} className="header-logo" />
+          <h1 className="app-title">Pub/Sub Visualizer</h1>
+        </div>
         {hasUser && hasProjects && (
           <div className="project-selector">
             <select
