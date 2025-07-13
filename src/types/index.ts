@@ -1,92 +1,14 @@
-export interface User {
-  id: string;
-  name: string;
-  email: string;
-  picture: string;
-}
+// 認証関連の型定義
+export type { User, TokenResponse, ApiError } from "./auth";
 
-export interface Project {
-  projectId: string;
-  name: string;
-  projectNumber: string;
-}
+// プロジェクト関連の型定義
+export type { Project, ProjectsResponse } from "./project";
 
-export interface TokenResponse {
-  access_token: string;
-  token_type: string;
-  expires_in: number;
-  refresh_token?: string;
-  scope: string;
-}
-
-export interface ProjectsResponse {
-  projects: Project[];
-}
-
-export interface ApiError {
-  error: string;
-  error_description?: string;
-}
-
-// Pub/Sub 関連の型定義
-export interface Topic {
-  name: string;
-  kmsKeyName?: string;
-  labels?: Record<string, string>;
-  messageStoragePolicy?: {
-    allowedPersistenceRegions?: string[];
-  };
-  schemaSettings?: {
-    schema: string;
-    encoding: string;
-  };
-  satisfiesPzs?: boolean;
-  state?: "ACTIVE" | "DELETED";
-}
-
-export interface Subscription {
-  name: string;
-  topic: string;
-  pushConfig?: {
-    pushEndpoint: string;
-    attributes?: Record<string, string>;
-    authenticationMethod?: {
-      serviceAccountEmail?: string;
-    };
-  };
-  ackDeadlineSeconds?: number;
-  retainAckedMessages?: boolean;
-  messageRetentionDuration?: string;
-  labels?: Record<string, string>;
-  expirationPolicy?: {
-    ttl: string;
-  };
-  filter?: string;
-  deadLetterPolicy?: {
-    deadLetterTopic: string;
-    maxDeliveryAttempts: number;
-  };
-  retryPolicy?: {
-    minimumBackoff: string;
-    maximumBackoff: string;
-  };
-  detached?: boolean;
-  enableMessageOrdering?: boolean;
-  enableExactlyOnceDelivery?: boolean;
-  state?: "ACTIVE" | "RESOURCE_ERROR";
-}
-
-export interface TopicsResponse {
-  topics: Topic[];
-  nextPageToken?: string;
-}
-
-export interface SubscriptionsResponse {
-  subscriptions: Subscription[];
-  nextPageToken?: string;
-}
-
-export interface TopicWithSubscriptions {
-  topic: Topic;
-  subscriptions: Subscription[];
-}
+// Pub/Sub関連の型定義
+export type {
+  Topic,
+  Subscription,
+  TopicsResponse,
+  SubscriptionsResponse,
+  TopicWithSubscriptions,
+} from "./pubsub";

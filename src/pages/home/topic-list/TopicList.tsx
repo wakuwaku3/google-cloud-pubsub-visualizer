@@ -6,7 +6,8 @@ import {
   associateTopicsWithSubscriptions,
 } from "@/lib/pubsub";
 import { Loading } from "@/components/loading";
-import { Collapsible } from "@/components/collapsible";
+import { TopicListView } from "./TopicListView";
+import { TopicCardView } from "./TopicCardView";
 import type { Topic, Subscription } from "@/types";
 import "./TopicList.css";
 
@@ -17,21 +18,18 @@ const VIEW_MODE_STORAGE_KEY = "topic-list-view-mode";
 export function TopicList() {
   const { selectedProject, accessToken } = useAuth();
   const [topicsWithSubscriptions, setTopicsWithSubscriptions] = useState<
-    Array<{
+    {
       topic: Topic;
       subscriptions: Subscription[];
-    }>
+    }[]
   >([]);
   const [filterText, setFilterText] = useState("");
   const [viewMode, setViewMode] = useState<ViewMode>(() => {
-    // localStorageから初期値を取得
-    const savedViewMode = localStorage.getItem(
-      VIEW_MODE_STORAGE_KEY
-    ) as ViewMode;
-    return savedViewMode &&
-      (savedViewMode === "list" || savedViewMode === "card")
-      ? savedViewMode
-      : "list";
+    const savedViewMode = localStorage.getItem(VIEW_MODE_STORAGE_KEY);
+    if (savedViewMode === "list" || savedViewMode === "card") {
+      return savedViewMode;
+    }
+    return "list";
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -138,7 +136,7 @@ export function TopicList() {
       // サブスクリプションのラベルでフィルタリング
       const subscriptionLabelValues = subscriptions
         .filter((sub) => sub.labels)
-        .flatMap((sub) => Object.values(sub.labels || {}))
+        .flatMap((sub) => Object.values(sub.labels ?? {}))
         .map((value) => value.toLowerCase());
       if (subscriptionLabelValues.some((value) => value.includes(filterLower)))
         return true;
@@ -164,19 +162,25 @@ export function TopicList() {
         <h2>Topic一覧</h2>
         <div className="view-mode-toggle">
           <button
+            type="button"
             className={`view-mode-button ${
               viewMode === "list" ? "active" : ""
             }`}
-            onClick={() => setViewMode("list")}
+            onClick={() => {
+              setViewMode("list");
+            }}
             aria-label="リスト表示"
           >
             📋 リスト
           </button>
           <button
+            type="button"
             className={`view-mode-button ${
               viewMode === "card" ? "active" : ""
             }`}
-            onClick={() => setViewMode("card")}
+            onClick={() => {
+              setViewMode("card");
+            }}
             aria-label="カード表示"
           >
             🃏 カード
@@ -191,12 +195,17 @@ export function TopicList() {
             type="text"
             placeholder="Topic名、サブスクリプション名、ラベルでフィルタリング..."
             value={filterText}
-            onChange={(e) => setFilterText(e.target.value)}
+            onChange={(e) => {
+              setFilterText(e.target.value);
+            }}
             className="filter-input"
           />
           {filterText && (
             <button
-              onClick={() => setFilterText("")}
+              type="button"
+              onClick={() => {
+                setFilterText("");
+              }}
               className="clear-filter-button"
               aria-label="フィルターをクリア"
             >
@@ -212,221 +221,11 @@ export function TopicList() {
         </div>
       )}
 
-      <div
-        className={`topics-container ${
-          viewMode === "card" ? "topics-grid" : "topics-list"
-        }`}
-      >
-        {filteredTopics.map(({ topic, subscriptions }) => (
-          <TopicListItem
-            key={topic.name}
-            topic={topic}
-            subscriptions={subscriptions}
-            viewMode={viewMode}
-          />
-        ))}
-      </div>
-    </div>
-  );
-}
-
-interface TopicListItemProps {
-  topic: Topic;
-  subscriptions: Subscription[];
-  viewMode: ViewMode;
-}
-
-function TopicListItem({ topic, subscriptions, viewMode }: TopicListItemProps) {
-  const { topicName } = extractTopicName(topic.name);
-
-  if (viewMode === "card") {
-    return (
-      <div className="topic-card-item">
-        <div className="topic-card-header">
-          <h3 className="topic-card-name">{topicName}</h3>
-          {topic.state && (
-            <span
-              className={`topic-state topic-state-${topic.state.toLowerCase()}`}
-            >
-              {topic.state}
-            </span>
-          )}
-        </div>
-
-        {topic.labels && Object.keys(topic.labels).length > 0 && (
-          <div className="topic-card-labels">
-            <span className="labels-label">ラベル:</span>
-            <div className="labels-list">
-              {Object.entries(topic.labels).map(([key, value]) => (
-                <span key={key} className="label">
-                  {key}: {value}
-                </span>
-              ))}
-            </div>
-          </div>
-        )}
-
-        <div className="topic-card-subscriptions">
-          <div className="subscriptions-count">
-            <strong>サブスクリプション:</strong> {subscriptions.length}件
-          </div>
-
-          {subscriptions.length > 0 && (
-            <div className="subscriptions-preview">
-              {subscriptions.slice(0, 3).map((subscription) => {
-                const { subscriptionName } = extractSubscriptionName(
-                  subscription.name
-                );
-                const isPush = !!subscription.pushConfig;
-                const deliveryType = isPush ? "Push" : "Pull";
-
-                return (
-                  <div
-                    key={subscription.name}
-                    className="subscription-preview-item"
-                  >
-                    <span className="subscription-preview-name">
-                      {subscriptionName}
-                    </span>
-                    <span
-                      className={`delivery-type-badge ${
-                        isPush ? "push" : "pull"
-                      }`}
-                    >
-                      {deliveryType}
-                    </span>
-                  </div>
-                );
-              })}
-              {subscriptions.length > 3 && (
-                <div className="subscriptions-more">
-                  他 {subscriptions.length - 3} 件...
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-
-        <Collapsible title="詳細表示">
-          {subscriptions.length === 0 ? (
-            <p className="no-subscriptions">
-              このTopicにはサブスクリプションがありません
-            </p>
-          ) : (
-            <div className="subscriptions-list">
-              {subscriptions.map((subscription) => (
-                <SubscriptionItem
-                  key={subscription.name}
-                  subscription={subscription}
-                />
-              ))}
-            </div>
-          )}
-        </Collapsible>
-      </div>
-    );
-  }
-
-  // リスト表示（既存のコード）
-  return (
-    <div className="topic-list-item">
-      <div className="topic-header">
-        <h3 className="topic-name">{topicName}</h3>
-        {topic.state && (
-          <span
-            className={`topic-state topic-state-${topic.state.toLowerCase()}`}
-          >
-            {topic.state}
-          </span>
-        )}
-      </div>
-
-      {topic.labels && Object.keys(topic.labels).length > 0 && (
-        <div className="topic-labels">
-          <span className="labels-label">ラベル:</span>
-          <div className="labels-list">
-            {Object.entries(topic.labels).map(([key, value]) => (
-              <span key={key} className="label">
-                {key}: {value}
-              </span>
-            ))}
-          </div>
-        </div>
-      )}
-
-      <Collapsible title={`サブスクリプション (${subscriptions.length})`}>
-        {subscriptions.length === 0 ? (
-          <p className="no-subscriptions">
-            このTopicにはサブスクリプションがありません
-          </p>
+      <div className="topics-container">
+        {viewMode === "list" ? (
+          <TopicListView topicsWithSubscriptions={filteredTopics} />
         ) : (
-          <div className="subscriptions-list">
-            {subscriptions.map((subscription) => (
-              <SubscriptionItem
-                key={subscription.name}
-                subscription={subscription}
-              />
-            ))}
-          </div>
-        )}
-      </Collapsible>
-    </div>
-  );
-}
-
-interface SubscriptionItemProps {
-  subscription: Subscription;
-}
-
-function SubscriptionItem({ subscription }: SubscriptionItemProps) {
-  const { subscriptionName } = extractSubscriptionName(subscription.name);
-  const isPush = !!subscription.pushConfig;
-  const deliveryType = isPush ? "Push" : "Pull";
-
-  return (
-    <div className="subscription-item">
-      <div className="subscription-header">
-        <h5 className="subscription-name">{subscriptionName}</h5>
-        {subscription.state && (
-          <span
-            className={`subscription-state subscription-state-${subscription.state.toLowerCase()}`}
-          >
-            {subscription.state}
-          </span>
-        )}
-      </div>
-
-      <div className="subscription-details">
-        <div className="delivery-type">
-          <strong>配信タイプ:</strong> {deliveryType}
-        </div>
-
-        {isPush && subscription.pushConfig?.pushEndpoint && (
-          <div className="push-endpoint">
-            <strong>エンドポイント:</strong>
-            <div className="endpoint-url">
-              {subscription.pushConfig.pushEndpoint}
-            </div>
-          </div>
-        )}
-
-        {subscription.ackDeadlineSeconds && (
-          <div className="ack-deadline">
-            <strong>Ack期限:</strong> {subscription.ackDeadlineSeconds}秒
-          </div>
-        )}
-
-        {subscription.labels && Object.keys(subscription.labels).length > 0 && (
-          <div className="subscription-labels">
-            <strong>ラベル:</strong>
-            <div className="labels-grid">
-              {Object.entries(subscription.labels).map(([key, value]) => (
-                <span key={key} className="label">
-                  {key}: {value}
-                </span>
-              ))}
-            </div>
-          </div>
+          <TopicCardView topicsWithSubscriptions={filteredTopics} />
         )}
       </div>
     </div>

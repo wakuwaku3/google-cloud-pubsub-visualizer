@@ -10,8 +10,6 @@ export async function getTopics(
   accessToken: string,
   projectId: string
 ): Promise<Topic[]> {
-  const tokenStr =
-    typeof accessToken === "string" ? accessToken : String(accessToken);
   console.log("Fetching topics for project:", projectId);
 
   const response = await fetch(
@@ -48,8 +46,6 @@ export async function getSubscriptions(
   accessToken: string,
   projectId: string
 ): Promise<Subscription[]> {
-  const tokenStr =
-    typeof accessToken === "string" ? accessToken : String(accessToken);
   console.log("Fetching subscriptions for project:", projectId);
 
   const response = await fetch(
@@ -125,7 +121,7 @@ export function extractSubscriptionInfo(subscriptionName: string): {
 export function associateTopicsWithSubscriptions(
   topics: Topic[],
   subscriptions: Subscription[]
-): Array<{ topic: Topic; subscriptions: Subscription[] }> {
+): { topic: Topic; subscriptions: Subscription[] }[] {
   return topics.map((topic) => {
     const topicSubscriptions = subscriptions.filter(
       (sub) => sub.topic === topic.name

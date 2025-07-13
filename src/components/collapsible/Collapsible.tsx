@@ -25,6 +25,7 @@ export function Collapsible({
       <div className="collapsible-header" onClick={toggleExpanded}>
         <h4 className="collapsible-title">{title}</h4>
         <button
+          type="button"
           className={`expand-button ${isExpanded ? "expanded" : ""}`}
           onClick={(e) => {
             e.stopPropagation();
