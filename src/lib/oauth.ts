@@ -1,4 +1,5 @@
 import { sha256 } from "js-sha256";
+import type { User, Project, ProjectsResponse } from "@/types";
 
 // PKCE 用の code_verifier を生成
 export function generateCodeVerifier(): string {
@@ -10,9 +11,11 @@ export function generateCodeVerifier(): string {
 // PKCE 用の code_challenge を生成
 export function generateCodeChallenge(codeVerifier: string): string {
   const hash = sha256(codeVerifier);
-  const hashArray = new Uint8Array(
-    hash.match(/.{1,2}/g)!.map((byte) => parseInt(byte, 16))
-  );
+  const matches = hash.match(/.{1,2}/g);
+  if (!matches) {
+    throw new Error("Failed to generate code challenge");
+  }
+  const hashArray = new Uint8Array(matches.map((byte) => parseInt(byte, 16)));
   return base64URLEncode(hashArray);
 }
 
@@ -24,9 +27,13 @@ function base64URLEncode(buffer: Uint8Array): string {
 
 // OAuth 認証 URL を生成
 export function generateAuthUrl(codeChallenge: string): string {
+  const baseUrl = import.meta.env.VITE_REDIRECT_URI;
+  const redirectUri = `${baseUrl}/auth/callback`;
+
+  const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
   const params = new URLSearchParams({
-    client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID || "",
-    redirect_uri: import.meta.env.VITE_REDIRECT_URI || "http://localhost:5173",
+    client_id: clientId,
+    redirect_uri: redirectUri,
     response_type: "code",
     scope:
       "https://www.googleapis.com/auth/cloud-platform.read-only https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email",
@@ -52,20 +59,25 @@ export async function getAccessToken(
   code: string,
   codeVerifier: string
 ): Promise<TokenResponse> {
+  const baseUrl = import.meta.env.VITE_REDIRECT_URI;
+  const redirectUri = `${baseUrl}/auth/callback`;
+
+  const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+  const clientSecret = import.meta.env.VITE_GOOGLE_CLIENT_SECRET;
   const requestBody = new URLSearchParams({
-    client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID || "",
-    client_secret: import.meta.env.VITE_GOOGLE_CLIENT_SECRET || "",
-    redirect_uri: import.meta.env.VITE_REDIRECT_URI || "http://localhost:5173",
+    client_id: clientId,
+    client_secret: clientSecret,
+    redirect_uri: redirectUri,
     grant_type: "authorization_code",
     code,
     code_verifier: codeVerifier,
   });
 
   console.log("Token request body:", {
-    client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID || "",
-    redirect_uri: import.meta.env.VITE_REDIRECT_URI || "http://localhost:5173",
-    code: code.substring(0, 20) + "...",
-    code_verifier: codeVerifier.substring(0, 20) + "...",
+    client_id: clientId,
+    redirect_uri: redirectUri,
+    code: `${code.substring(0, 20)}...`,
+    code_verifier: `${codeVerifier.substring(0, 20)}...`,
   });
 
   const response = await fetch("/oauth2/token", {
@@ -78,21 +90,26 @@ export async function getAccessToken(
 
   if (!response.ok) {
     const errorText = await response.text();
-    console.error("Token request failed:", response.status, errorText);
-    throw new Error(`Failed to get access token: ${response.status}`);
+    console.error("Token request failed:", String(response.status), errorText);
+    throw new Error(`Failed to get access token: ${String(response.status)}`);
   }
 
-  const data = await response.json();
-  return data;
+  const data: unknown = await response.json();
+  if (!data || typeof data !== "object" || !("access_token" in data)) {
+    throw new Error("Invalid token response");
+  }
+  return data as TokenResponse;
 }
 
 // リフレッシュトークンを使って新しいアクセストークンを取得
 export async function refreshAccessToken(
   refreshToken: string
 ): Promise<TokenResponse> {
+  const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+  const clientSecret = import.meta.env.VITE_GOOGLE_CLIENT_SECRET;
   const requestBody = new URLSearchParams({
-    client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID || "",
-    client_secret: import.meta.env.VITE_GOOGLE_CLIENT_SECRET || "",
+    client_id: clientId,
+    client_secret: clientSecret,
     grant_type: "refresh_token",
     refresh_token: refreshToken,
   });
@@ -109,61 +126,79 @@ export async function refreshAccessToken(
 
   if (!response.ok) {
     const errorText = await response.text();
-    console.error("Token refresh failed:", response.status, errorText);
-    throw new Error(`Failed to refresh access token: ${response.status}`);
+    console.error("Token refresh failed:", String(response.status), errorText);
+    throw new Error(
+      `Failed to refresh access token: ${String(response.status)}`
+    );
   }
 
-  const data = await response.json();
-  console.log("Token refreshed successfully");
-  return data;
+  const data: unknown = await response.json();
+  if (!data || typeof data !== "object" || !("access_token" in data)) {
+    throw new Error("Invalid token response");
+  }
+  return data as TokenResponse;
 }
 
 // ユーザー情報を取得
-export async function getUserInfo(accessToken: string) {
+export async function getUserInfo(accessToken: string): Promise<User> {
+  const tokenStr =
+    typeof accessToken === "string" ? accessToken : String(accessToken);
   console.log(
     "Fetching user info with token:",
-    accessToken.substring(0, 20) + "..."
+    `${tokenStr.substring(0, 20)}...`
   );
 
   const response = await fetch(
     "https://www.googleapis.com/oauth2/v2/userinfo",
     {
       headers: {
-        Authorization: `Bearer ${accessToken}`,
+        Authorization: `Bearer ${String(accessToken)}`,
       },
     }
   );
 
   if (!response.ok) {
     const errorText = await response.text();
-    console.error("User info request failed:", response.status, errorText);
-    throw new Error(`Failed to get user info: ${response.status}`);
+    console.error(
+      "User info request failed:",
+      String(response.status),
+      errorText
+    );
+    throw new Error(`Failed to get user info: ${String(response.status)}`);
   }
 
-  const userInfo = await response.json();
-  console.log("User info received:", userInfo);
-  return userInfo;
+  const userInfo: unknown = await response.json();
+  if (!userInfo || typeof userInfo !== "object" || !("id" in userInfo)) {
+    throw new Error("Invalid user info response");
+  }
+  return userInfo as User;
 }
 
 // プロジェクト一覧を取得
-export async function getProjects(accessToken: string) {
+export async function getProjects(accessToken: string): Promise<Project[]> {
+  const tokenStr =
+    typeof accessToken === "string" ? accessToken : String(accessToken);
   console.log(
     "Fetching projects with token:",
-    accessToken.substring(0, 20) + "..."
+    `${tokenStr.substring(0, 20)}...`
   );
 
   const response = await fetch(
     "https://cloudresourcemanager.googleapis.com/v1/projects",
     {
       headers: {
-        Authorization: `Bearer ${accessToken}`,
+        Authorization: `Bearer ${String(accessToken)}`,
       },
     }
   );
 
   if (!response.ok) {
     const errorText = await response.text();
-    console.error("Projects request failed:", response.status, errorText);
+    console.error(
+      "Projects request failed:",
+      String(response.status),
+      errorText
+    );
 
     if (response.status === 403) {
       throw new Error(
@@ -171,10 +206,12 @@ export async function getProjects(accessToken: string) {
       );
     }
 
-    throw new Error(`Failed to get projects: ${response.status}`);
+    throw new Error(`Failed to get projects: ${String(response.status)}`);
   }
 
-  const data = await response.json();
-  console.log("Projects received:", data);
-  return data.projects || [];
+  const data: unknown = await response.json();
+  if (!data || typeof data !== "object" || !("projects" in data)) {
+    throw new Error("Invalid projects response");
+  }
+  return (data as ProjectsResponse).projects;
 }

@@ -11,6 +11,7 @@
 - 承認済みのリダイレクト URI
   - <http://localhost:5173/>
   - <http://localhost:5173>
+  - <http://localhost:5173/auth/callback>
 
 ### [Cloud Resource Manager API](https://console.cloud.google.com/marketplace/product/google/cloudresourcemanager.googleapis.com) を有効にする
 

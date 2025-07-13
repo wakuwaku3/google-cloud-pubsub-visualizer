@@ -18,13 +18,12 @@
   gap: 24px;
 }
 
-.app-title {
+.header .app-title {
   font-size: 20px;
   font-weight: 500;
   color: #333;
   margin: 0;
   line-height: 1;
-  /* 不要なマージンを完全に除去 */
   margin-bottom: 0;
 }
 
@@ -105,7 +104,7 @@
     gap: 16px;
   }
 
-  .app-title {
+  .header .app-title {
     font-size: 18px;
   }
 

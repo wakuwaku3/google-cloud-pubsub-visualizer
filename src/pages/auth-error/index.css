@@ -1,0 +1,141 @@
+.auth-error-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f8f9fa;
+  padding: 20px;
+}
+
+.auth-error-content {
+  background: white;
+  border-radius: 8px;
+  padding: 32px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  max-width: 500px;
+  width: 100%;
+}
+
+.auth-error-title {
+  color: #dc3545;
+  font-size: 28px;
+  margin-bottom: 24px;
+  font-weight: 600;
+}
+
+.auth-error-message {
+  color: #666;
+  font-size: 16px;
+  line-height: 1.6;
+  margin-bottom: 32px;
+}
+
+.auth-error-message p {
+  margin: 0 0 16px 0;
+}
+
+.error-details {
+  background-color: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 6px;
+  padding: 16px;
+  margin: 16px 0;
+  text-align: left;
+}
+
+.error-details p {
+  margin: 8px 0;
+  font-family: monospace;
+  font-size: 14px;
+}
+
+.auth-error-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+}
+
+.retry-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 24px;
+  min-width: 200px;
+  height: 44px;
+  background-color: #4285f4;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.retry-button:hover {
+  background-color: #3367d6;
+}
+
+.retry-button:focus {
+  outline: 2px solid #4285f4;
+  outline-offset: 2px;
+}
+
+.home-button {
+  padding: 10px 20px;
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.home-button:hover {
+  background-color: #5a6268;
+}
+
+.home-button:focus {
+  outline: 2px solid #6c757d;
+  outline-offset: 2px;
+}
+
+.google-icon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+.retry-text {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+  .auth-error-container {
+    padding: 16px;
+  }
+
+  .auth-error-content {
+    padding: 24px;
+  }
+
+  .auth-error-title {
+    font-size: 24px;
+  }
+
+  .auth-error-actions {
+    gap: 10px;
+  }
+
+  .retry-button,
+  .home-button {
+    width: 100%;
+    max-width: 300px;
+  }
+}

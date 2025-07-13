@@ -1,0 +1,21 @@
+.google-auth-button {
+  background-color: #4285f4;
+  color: white;
+  border: 1px solid #4285f4;
+  min-width: 200px;
+}
+
+.google-auth-button:hover:not(.button--disabled) {
+  background-color: #3367d6;
+  border-color: #3367d6;
+}
+
+.google-auth-button:active:not(.button--disabled) {
+  background-color: #2a56c6;
+  border-color: #2a56c6;
+}
+
+.google-auth-button__text {
+  font-weight: 500;
+  font-size: 14px;
+}

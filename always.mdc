@@ -1,0 +1,10 @@
+
+# 追加ルール
+
+- コードを変更した場合 lint を実行し警告やエラーがある場合は解消を試みること
+- --fix フラグで修正可能なものは `npm run fix` で修正すること
+
+description:
+globs:
+alwaysApply: false
+---

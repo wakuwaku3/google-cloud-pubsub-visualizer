@@ -51,6 +51,144 @@ alwaysApply: true
 
 ---
 
+## ディレクトリ・ファイル構成ルール
+
+### ディレクトリ構造
+
+```tree
+src/
+├── pages/           # ページコンポーネント（ルートレベルのページ）
+│   ├── home/        # ホームページ
+│   ├── auth-callback/ # 認証コールバックページ
+│   ├── auth-error/  # 認証エラーページ
+│   └── logout/      # ログアウトページ
+├── components/      # 再利用可能なコンポーネント
+│   ├── button/      # ボタン関連コンポーネント
+│   ├── icon/        # アイコンコンポーネント
+│   └── [feature]/   # 機能別コンポーネント
+├── contexts/        # React Context
+├── lib/            # ライブラリ・ユーティリティ
+├── types/          # TypeScript型定義
+├── utils/          # ユーティリティ関数
+└── assets/         # 静的アセット
+```
+
+### ファイル命名規則
+
+#### ページコンポーネント（pages/配下）
+
+- 各ページは独立したディレクトリを作成
+- ディレクトリ名は kebab-case（例: `auth-callback`）
+- メインコンポーネントは `index.tsx` に実装
+- CSSファイルは `index.css` に配置
+- エクスポート用に `index.ts` を作成
+- `Page` サフィックスは不要（pages配下なので自明）
+
+```tree
+pages/home/
+├── index.ts      # エクスポート: export { HomePage } from "./index.tsx"
+├── index.tsx     # メインコンポーネント
+└── index.css     # スタイル
+```
+
+#### 再利用可能コンポーネント（components/配下）
+
+- ファイル名は PascalCase（例: `Header.tsx`）
+- CSSファイルは同名の `.css` ファイル（例: `Header.css`）
+- 機能別ディレクトリに分類（例: `button/`, `icon/`）
+
+```tree
+components/
+├── button/           # ボタン関連コンポーネント
+│   ├── index.ts      # エクスポート
+│   ├── Button.tsx    # 汎用ボタン
+│   ├── Button.css    # ボタンスタイル
+│   ├── GoogleAuthButton.tsx  # Google認証ボタン
+│   └── GoogleAuthButton.css  # Google認証ボタンスタイル
+├── icon/             # アイコンコンポーネント
+│   ├── index.ts      # エクスポート
+│   └── GoogleIcon.tsx # Googleアイコン
+└── [feature]/        # その他の機能別コンポーネント
+```
+
+### コンポーネント実装ルール
+
+#### ページコンポーネント
+
+- `pages/` 配下のコンポーネントはルートレベルのページを表す
+- 各ページは独立したディレクトリに配置
+- ページ固有のサブコンポーネントは同じディレクトリ内に配置可能
+- エクスポートは `index.ts` で行い、コンポーネント名は `Page` サフィックス付き
+
+#### 再利用可能コンポーネント
+
+- `components/` 配下のコンポーネントは複数の場所で使用される汎用コンポーネント
+- 単一責任の原則に従い、明確な役割を持つ
+- Props の型定義は `types/` ディレクトリに配置
+
+#### 機能別コンポーネント分類
+
+- **button/**: ボタン関連のコンポーネント（Button, GoogleAuthButton等）
+- **icon/**: アイコンコンポーネント（GoogleIcon等）
+- **[feature]/**: その他の機能別コンポーネント
+
+### インポート・エクスポート規則
+
+#### ページコンポーネントのインポート
+
+```typescript
+// 正しい例
+import { HomePage } from "@/pages/home";
+import { AuthCallbackPage } from "@/pages/auth-callback";
+
+// 間違った例
+import { HomePage } from "@/pages/HomePage";
+import { HomePage } from "@/pages/home/index";
+```
+
+#### コンポーネントのエクスポート
+
+```typescript
+// pages/home/index.ts
+export { HomePage } from "./index.tsx";
+
+// components/button/index.ts
+export { Button } from "./Button";
+export type { ButtonProps } from "./Button";
+export { GoogleAuthButton } from "./GoogleAuthButton";
+
+// components/icon/index.ts
+export { GoogleIcon } from "./GoogleIcon";
+```
+
+#### 機能別コンポーネントのインポート
+
+```typescript
+// 正しい例
+import { Button } from "@/components/button/Button";
+import { GoogleAuthButton } from "@/components/button/GoogleAuthButton";
+import { GoogleIcon } from "@/components/icon";
+
+// 間違った例
+import { Button } from "@/components/ui/Button";
+import { GoogleIcon } from "@/components/GoogleIcon";
+```
+
+### CSS ファイル配置
+
+- 各コンポーネントの CSS ファイルは同じディレクトリに配置
+- グローバルスタイルは `src/index.css` に配置
+- コンポーネント固有のスタイルは対応するコンポーネントと同じディレクトリに配置
+
+### ボタンコンポーネント設計
+
+- **Button**: 汎用ボタンコンポーネント（primary, secondary, text バリアント）
+- **GoogleAuthButton**: Google認証専用ボタン（Buttonをラップ）
+- ボタンは `components/button/` 配下に配置
+- 各ボタンコンポーネントは対応するCSSファイルを持つ
+
+---
+
 ## 今後の拡張案
 
 - Pub/Sub リソースの検索・フィルタ
