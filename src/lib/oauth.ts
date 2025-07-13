@@ -1,6 +1,14 @@
 import { sha256 } from "js-sha256";
 import type { User, Project, ProjectsResponse } from "@/types";
 
+// 現在のホスト環境に基づいてリダイレクトURIを生成
+function getRedirectUri(): string {
+  const protocol = window.location.protocol;
+  const host = window.location.host;
+  const baseUrl = `${protocol}//${host}`;
+  return `${baseUrl}/auth/callback`;
+}
+
 // PKCE 用の code_verifier を生成
 export function generateCodeVerifier(): string {
   const array = new Uint8Array(32);
@@ -27,8 +35,7 @@ function base64URLEncode(buffer: Uint8Array): string {
 
 // OAuth 認証 URL を生成
 export function generateAuthUrl(codeChallenge: string): string {
-  const baseUrl = import.meta.env.VITE_REDIRECT_URI;
-  const redirectUri = `${baseUrl}/auth/callback`;
+  const redirectUri = getRedirectUri();
 
   const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
   const params = new URLSearchParams({
@@ -59,8 +66,7 @@ export async function getAccessToken(
   code: string,
   codeVerifier: string
 ): Promise<TokenResponse> {
-  const baseUrl = import.meta.env.VITE_REDIRECT_URI;
-  const redirectUri = `${baseUrl}/auth/callback`;
+  const redirectUri = getRedirectUri();
 
   const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
   const clientSecret = import.meta.env.VITE_GOOGLE_CLIENT_SECRET;

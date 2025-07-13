@@ -1,0 +1,19 @@
+{
+  "functions": {
+    "source": "functions/oauth-handler"
+  },
+  "hosting": {
+    "public": "dist",
+    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+    "rewrites": [
+      {
+        "source": "/oauth2/token",
+        "function": "oauthHandler"
+      },
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  }
+}

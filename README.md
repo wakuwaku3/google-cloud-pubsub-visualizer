@@ -22,3 +22,27 @@
 ```sh
 envsubst < ./.devcontainer/.env.local.template > ./.devcontainer/.env.local
 ```
+
+### deploy 方法
+
+#### application
+
+```sh
+export VITE_GOOGLE_CLIENT_ID=${VITE_GOOGLE_CLIENT_ID}
+export VITE_GOOGLE_CLIENT_SECRET=${VITE_GOOGLE_CLIENT_SECRET}
+firebase login
+firebase init
+npm run build
+firebase deploy --only hosting
+```
+
+#### functions
+
+```sh
+cd functions/oauth-handler
+npm install
+npm run build
+cd ../../
+
+firebase deploy --only functions
+```
