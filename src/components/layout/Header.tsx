@@ -5,15 +5,15 @@ import "./Header.css";
 
 export function Header() {
   const navigate = useNavigate();
-  const { user, projects, selectedProject, selectProject, logout } = useAuth();
+  const { user, projects, selectedProject, selectProject } = useAuth();
 
   const handleProjectChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     selectProject(event.target.value);
   };
 
   const handleLogout = () => {
-    logout();
-    void navigate("/logout");
+    // ログアウト中画面に移動（ログアウト処理はそこで実行）
+    void navigate("/logout-loading");
   };
 
   // 型安全性のため、userとprojectsの存在を確認

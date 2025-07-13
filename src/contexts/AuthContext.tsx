@@ -168,7 +168,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             } else {
               // プロジェクト一覧が保存されていない場合は再取得
               try {
-                await refreshProjects(savedToken);
+                const projectsData = await getProjects(savedToken);
+                setProjects(projectsData);
+                sessionStorage.setItem(
+                  "projects",
+                  JSON.stringify(projectsData)
+                );
+
+                // プロジェクトが取得できた場合、初期選択を設定
+                if (projectsData.length > 0 && !selectedProject) {
+                  const savedProjectId =
+                    sessionStorage.getItem("selectedProjectId");
+                  const projectToSelect = savedProjectId
+                    ? projectsData.find(
+                        (p: Project) => p.projectId === savedProjectId
+                      )
+                    : projectsData[0];
+
+                  if (projectToSelect) {
+                    setSelectedProject(projectToSelect);
+                    sessionStorage.setItem(
+                      "selectedProjectId",
+                      projectToSelect.projectId
+                    );
+                  }
+                }
               } catch (error) {
                 console.warn("Failed to refresh projects:", error);
                 // プロジェクト取得に失敗した場合、トークンが無効かもしれないのでリフレッシュを試行
@@ -180,10 +204,42 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                   console.log(
                     "Token appears to be expired, attempting refresh..."
                   );
-                  const refreshSuccess = await refreshAccessTokenWithContext();
-                  if (!refreshSuccess) {
+                  try {
+                    const tokenResponse = await refreshAccessToken(
+                      savedRefreshToken
+                    );
+                    setAccessToken(tokenResponse.access_token);
+                    sessionStorage.setItem(
+                      "access_token",
+                      tokenResponse.access_token
+                    );
+                    if (tokenResponse.refresh_token) {
+                      setRefreshToken(tokenResponse.refresh_token);
+                      sessionStorage.setItem(
+                        "refresh_token",
+                        tokenResponse.refresh_token
+                      );
+                    }
+                    console.log("Access token refreshed successfully");
+                  } catch (refreshError) {
+                    console.error(
+                      "Failed to refresh access token:",
+                      refreshError
+                    );
                     console.log("Token refresh failed, logging out...");
-                    logout();
+                    // ログアウト処理を直接実行
+                    setUser(null);
+                    setProjects([]);
+                    setSelectedProject(null);
+                    setAccessToken(null);
+                    setRefreshToken(null);
+                    sessionStorage.removeItem("code_verifier");
+                    sessionStorage.removeItem("selectedProjectId");
+                    sessionStorage.removeItem("access_token");
+                    sessionStorage.removeItem("refresh_token");
+                    sessionStorage.removeItem("user");
+                    sessionStorage.removeItem("projects");
+                    setIsInitialized(false);
                     return;
                   }
                 }
@@ -218,7 +274,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
 
     void initAuth();
-  }, [refreshProjects, refreshAccessTokenWithContext, logout]);
+  }, []); // 依存配列を空にして、初期化時のみ実行
 
   const value = useMemo<AuthContextType>(
     () => ({

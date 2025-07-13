@@ -1,4 +1,3 @@
-import React from "react";
 import { useNavigate } from "react-router-dom";
 import { GoogleAuthButton } from "@/components/button/GoogleAuthButton";
 import "./index.css";
@@ -6,30 +5,12 @@ import "./index.css";
 export function LogoutPage() {
   const navigate = useNavigate();
 
-  // コンポーネントマウント時にセッションストレージをクリア
-  React.useEffect(() => {
-    // ログアウト処理を確実に実行
-    sessionStorage.removeItem("code_verifier");
-    sessionStorage.removeItem("access_token");
-    sessionStorage.removeItem("refresh_token");
-    sessionStorage.removeItem("user");
-    sessionStorage.removeItem("projects");
-    sessionStorage.removeItem("selectedProjectId");
-  }, []);
+  // ログアウト処理は既にLogoutLoadingPageで実行済みのため、
+  // ここでは何もしない
 
   const handleRelogin = () => {
-    // セッションストレージを完全にクリアしてからホームページに移動
-    sessionStorage.removeItem("code_verifier");
-    sessionStorage.removeItem("access_token");
-    sessionStorage.removeItem("refresh_token");
-    sessionStorage.removeItem("user");
-    sessionStorage.removeItem("projects");
-    sessionStorage.removeItem("selectedProjectId");
-
-    // 少し遅延を入れてからホームページに移動（セッションストレージのクリアを確実にするため）
-    setTimeout(() => {
-      void navigate("/", { replace: true });
-    }, 50);
+    // ホームページに移動（認証が必要な場合は自動的に認証フローが開始される）
+    void navigate("/", { replace: true });
   };
 
   return (

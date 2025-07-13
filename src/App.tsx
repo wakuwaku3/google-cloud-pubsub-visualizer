@@ -5,8 +5,11 @@ import {
   Navigate,
 } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { ProtectedRoute } from "@/components/auth";
+import { AppLayout } from "@/components/layout";
 import { HomePage } from "@/pages/home";
 import { LogoutPage } from "@/pages/logout";
+import { LogoutLoadingPage } from "@/pages/logout-loading";
 import { AuthCallbackPage } from "@/pages/auth-callback";
 import { AuthErrorPage } from "@/pages/auth-error";
 
@@ -22,7 +25,17 @@ function App() {
           element={
             <AuthProvider>
               <Routes>
-                <Route path="/" element={<HomePage />} />
+                <Route
+                  path="/"
+                  element={
+                    <ProtectedRoute>
+                      <AppLayout>
+                        <HomePage />
+                      </AppLayout>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route path="/logout-loading" element={<LogoutLoadingPage />} />
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
             </AuthProvider>
