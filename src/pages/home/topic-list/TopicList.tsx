@@ -12,6 +12,8 @@ import "./TopicList.css";
 
 type ViewMode = "list" | "card";
 
+const VIEW_MODE_STORAGE_KEY = "topic-list-view-mode";
+
 export function TopicList() {
   const { selectedProject, accessToken } = useAuth();
   const [topicsWithSubscriptions, setTopicsWithSubscriptions] = useState<
@@ -21,9 +23,23 @@ export function TopicList() {
     }>
   >([]);
   const [filterText, setFilterText] = useState("");
-  const [viewMode, setViewMode] = useState<ViewMode>("list");
+  const [viewMode, setViewMode] = useState<ViewMode>(() => {
+    // localStorageから初期値を取得
+    const savedViewMode = localStorage.getItem(
+      VIEW_MODE_STORAGE_KEY
+    ) as ViewMode;
+    return savedViewMode &&
+      (savedViewMode === "list" || savedViewMode === "card")
+      ? savedViewMode
+      : "list";
+  });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // 表示モードが変更されたときにlocalStorageに保存
+  useEffect(() => {
+    localStorage.setItem(VIEW_MODE_STORAGE_KEY, viewMode);
+  }, [viewMode]);
 
   useEffect(() => {
     const fetchTopicsAndSubscriptions = async () => {
