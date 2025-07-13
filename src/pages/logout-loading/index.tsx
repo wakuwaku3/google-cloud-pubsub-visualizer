@@ -16,7 +16,7 @@ export function LogoutLoadingPage() {
       void navigate("/logout", { replace: true });
     }, 1000);
 
-    return () => clearTimeout(timer);
+    return () => { clearTimeout(timer); };
   }, [logout, navigate]);
 
   return (

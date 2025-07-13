@@ -176,7 +176,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 );
 
                 // プロジェクトが取得できた場合、初期選択を設定
-                if (projectsData.length > 0 && !selectedProject) {
+                if (projectsData.length > 0) {
                   const savedProjectId =
                     sessionStorage.getItem("selectedProjectId");
                   const projectToSelect = savedProjectId

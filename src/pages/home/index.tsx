@@ -10,7 +10,7 @@ export function HomePage() {
   return (
     <div className="content-container">
       <div className="welcome-section">
-        <h2>ようこそ、{user!.name}さん</h2>
+        <h2>ようこそ、{user?.name ?? "ゲスト"}さん</h2>
         {selectedProject && (
           <p className="selected-project">
             選択中のプロジェクト: <strong>{selectedProject.name}</strong>
