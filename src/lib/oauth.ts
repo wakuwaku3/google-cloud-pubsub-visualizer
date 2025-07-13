@@ -36,7 +36,7 @@ export function generateAuthUrl(codeChallenge: string): string {
     redirect_uri: redirectUri,
     response_type: "code",
     scope:
-      "https://www.googleapis.com/auth/cloud-platform.read-only https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email",
+      "https://www.googleapis.com/auth/cloud-platform.read-only https://www.googleapis.com/auth/pubsub https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email",
     code_challenge: codeChallenge,
     code_challenge_method: "S256",
     access_type: "offline",

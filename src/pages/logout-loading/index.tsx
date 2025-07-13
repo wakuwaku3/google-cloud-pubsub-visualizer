@@ -1,6 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/useAuth";
+import { Loading } from "@/components/loading";
 import "./index.css";
 
 export function LogoutLoadingPage() {
@@ -16,18 +17,18 @@ export function LogoutLoadingPage() {
       void navigate("/logout", { replace: true });
     }, 1000);
 
-    return () => { clearTimeout(timer); };
+    return () => {
+      clearTimeout(timer);
+    };
   }, [logout, navigate]);
 
   return (
     <div className="logout-loading-page">
-      <div className="logout-loading-content">
-        <div className="loading-spinner"></div>
-        <h1 className="logout-loading-title">ログアウト中...</h1>
-        <p className="logout-loading-message">
-          セッションを終了しています。しばらくお待ちください。
-        </p>
-      </div>
+      <Loading
+        message="セッションを終了しています。しばらくお待ちください。"
+        variant="fullscreen"
+        size="large"
+      />
     </div>
   );
 }
